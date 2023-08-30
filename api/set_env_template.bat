@@ -1,0 +1,2 @@
+set OPENAI_API_KEY=
+set REDIS_URL=
