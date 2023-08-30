@@ -1,0 +1,3 @@
+[submodule "api/ChatGPTBot"]
+	path = api/ChatGPTBot
+	url = git@github.com:heathhenley/ChatGPTBot.git
