@@ -17,9 +17,9 @@ jobs:
       - name: On push to deploy branch
         run: |
           git checkout -b deploy
-          git rm --cached api\ChatGPTBot
+          git rm --cached api/ChatGPTBot
           git rm .gitmodules
-          rm -rf api\ChatGPTBot\.git
-          git add api\ChatGPTBot
+          rm -rf api/ChatGPTBot/.git
+          git add api/ChatGPTBot
           git commit -m "Checkout repo + submodule, add all and commit" || exit 0
           git push origin deploy -f
