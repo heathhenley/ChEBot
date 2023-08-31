@@ -16,7 +16,6 @@ nixLibs = [
     'zlib',
     'stdenv.cc.cc.lib',
 ]
-cmds = ['...', 'git submodule update --init --recursive']
 
 [start]
 cmd = "uvicorn che_bot_api:app --host 0.0.0.0 --port $PORT"
