@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Update commit author
         run: |
           git config user.name 'github-actions[bot]'
@@ -15,7 +17,6 @@ jobs:
       - name: On push to deploy branch
         run: |
           git checkout -b deploy
-          git submodule update --init --recursive
           git rm .gitmodules
           git add .
           git commit -m "Checkout repo + submodule, add all and commit" || exit 0
