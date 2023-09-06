@@ -73,8 +73,8 @@ const Reference = ({ url }) => {
 
 
 const VoteControls = ({ pkey }) => {
-  if (!pkey) return null
   const [voted, setVoted] = useState(false)
+  if (!pkey) return null
   if (voted) return "Thanks!"
   return (
     <>
