@@ -71,13 +71,13 @@ class VoteResult(BaseModel):
 def search_textbook(user_query: str, db = Depends(get_db)) -> BotResult:
   """ Search for most relevant section in textbook and make response. """
   reply = bot.get_reply(user_query)
-  id = uuid.uuid4().hex
-  db.hset(id, mapping={
+  id_ = uuid.uuid4().hex
+  db.hset(id_, mapping={
     "user_query": user_query,
     "bot_reply": reply,
     "upvoted": 0,
   })
-  return BotResult(response=reply, id=id)
+  return BotResult(response=reply, id=id_)
 
 
 @app.post("/feedback/")
@@ -87,10 +87,10 @@ def feedback(vote: VoteResult, db = Depends(get_db)) -> str:
     reply = db.hgetall(vote.id)
     if vote.upvoted:
       reply["upvoted"] = 1
-      print(f"{id}: upvoted")
+      print(f"{vote.id}: upvoted")
     else:
       reply["upvoted"] = -1
-      print(f"{id}: downvoted")
+      print(f"{vote.id}: downvoted")
     db.hset(vote.id, mapping=reply)
   except Exception as e:
     print(e)
