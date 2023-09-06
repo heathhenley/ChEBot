@@ -157,13 +157,19 @@ export default function Home() {
         <MainContainer>
           <ChatContainer>       
             <MessageList loading={loading}>
-              {messages ? messages.map((message, index) => 
-                (message.direction === "incoming" ? 
-                  <CustomMessage
-                    messages={messages}
-                    key={index}
-                    idx={index} /> :
-                  <Message model={...message} key={index} />)) : null}
+              {messages.map(
+                (message, index) => (
+                  message.direction === "incoming" ?
+                    <CustomMessage
+                      messages={messages}
+                      key={index}
+                      idx={index} /> :
+                    <Message key={index} model={{
+                      message: message.message,
+                      sentTime: message.sentTime,
+                      sender: message.sender,
+                      direction: message.direction,
+                      position: message.position}}/>))}
             </MessageList>
             <MessageInput
               attachButton={false}
