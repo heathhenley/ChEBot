@@ -87,10 +87,11 @@ def feedback(vote: VoteResult, db = Depends(get_db)) -> str:
     reply = db.hgetall(vote.id)
     if vote.upvoted:
       reply["upvoted"] = 1
+      print(f"{id}: upvoted")
     else:
       reply["upvoted"] = -1
+      print(f"{id}: downvoted")
     db.hset(vote.id, mapping=reply)
-    print(reply)
   except Exception as e:
     print(e)
     return "Error logging feedback."
