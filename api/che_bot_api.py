@@ -1,13 +1,29 @@
 import os
+import uuid
+import redis
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from chatbot import chatbot
+
 
 description = """
 This API is a chatbot that answers questions about chemical engineering.
 """
+
+def get_db():
+  r = redis.Redis(
+    host=os.getenv("REDIS_API_HOST"),
+    port=os.getenv("REDIS_API_PORT"),
+    password=os.getenv("REDIS_API_PASSWORD")
+  )
+  try:
+    yield r
+  finally:
+    r.close()
+
 
 app = FastAPI(
   title="Chatbot API - Chemical Engineering",
@@ -39,7 +55,43 @@ bot = chatbot.ChatBot(
       api_key=os.getenv("OPENAI_API_KEY"))
 )
 
-@app.get("/")
-def search_textbook(user_query: str) -> str:
+
+class BotResult(BaseModel):
+  """ Bot response to user query. """
+  response: str
+  id: str
+
+
+class VoteResult(BaseModel):
+  id: str
+  upvoted: bool
+
+
+@app.get("/", response_model=BotResult)
+def search_textbook(user_query: str, db = Depends(get_db)) -> BotResult:
   """ Search for most relevant section in textbook and make response. """
-  return bot.get_reply(user_query)
+  reply = bot.get_reply(user_query)
+  id = uuid.uuid4().hex
+  db.hset(id, mapping={
+    "user_query": user_query,
+    "bot_reply": reply,
+    "upvoted": 0,
+  })
+  return BotResult(response=reply, id=id)
+
+
+@app.post("/feedback/")
+def feedback(vote: VoteResult, db = Depends(get_db)) -> str:
+  """ User feedback on bot response. """
+  try:
+    reply = db.hgetall(vote.id)
+    if vote.upvoted:
+      reply["upvoted"] = 1
+    else:
+      reply["upvoted"] = -1
+    db.hset(vote.id, mapping=reply)
+    print(reply)
+  except Exception as e:
+    print(e)
+    return "Error logging feedback."
+  return "Feedback received. Thank you!"
